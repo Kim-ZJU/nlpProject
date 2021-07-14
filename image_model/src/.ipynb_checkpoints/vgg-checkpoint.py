@@ -21,7 +21,7 @@ import mindspore.common.dtype as mstype
 from mindspore.common import initializer as init
 from mindspore.common.initializer import initializer
 from .utils.var_init import default_recurisive_init, KaimingNormal
-from mindspore.ops import operations as P
+
 
 def _make_layer(base, args, batch_norm):
     """Make stage network of VGG."""
@@ -73,17 +73,14 @@ class Vgg(nn.Cell):
     def __init__(self, base, num_classes=1000, batch_norm=False, batch_size=1, args=None, phase="train",
                  include_top=True):
         super(Vgg, self).__init__()
+        print("init network")
         _ = batch_size
         self.layers = _make_layer(base, args, batch_norm=batch_norm)
         self.include_top = include_top
         self.flatten = nn.Flatten()
-        self.print = P.Print()
         dropout_ratio = 0.5
         if not args.has_dropout or phase == "test":
             dropout_ratio = 1.0
-        '''
-        from src.utils.logging import get_logger
-        self.logger = get_logger('./outputs', 0)
         self.classifier = nn.SequentialCell([
             nn.Dense(512 * 7 * 7, 4096),
             nn.ReLU(),
@@ -95,13 +92,9 @@ class Vgg(nn.Cell):
         if args.initialize_mode == "KaimingNormal":
             default_recurisive_init(self)
             self.custom_init_weight()
-        self.logger.info("init network")
-        '''              
-
 
     def construct(self, x):
-        self.print("enter construct")
-        #self.logger.info("enter construt")
+        print("enter construct")
         x = self.layers(x)
         if self.include_top:
             print("layers_out:",x)
